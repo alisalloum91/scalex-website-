@@ -661,7 +661,7 @@ footer{background:var(--dark-2);border-top:1px solid rgba(255,255,255,.07);paddi
   .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
   .form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
-  .hero-stats{flex-wrap:wrap;gap:20px}
+  .hero-stats{flex-wrap:nowrap;gap:0}
   /* Two-col sections → stack: text top, cards bottom */
   .two-col-section{
     grid-template-columns:1fr !important;
@@ -1383,10 +1383,8 @@ footer{background:var(--dark-2);border-top:1px solid rgba(255,255,255,.07);paddi
   transform:translateX(-50%);
   z-index:1000;width:auto;height:auto;
   padding:0;background:none;border-bottom:none;
-  animation:navFloat 5s ease-in-out infinite;
 }
 #navbar::before{display:none}
-#navbar:hover{animation-play-state:paused}
 .nav-pill{
   display:flex;align-items:center;gap:4px;
   background:rgba(8,12,32,.72);
@@ -10662,8 +10660,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   /* ── CSS ── */
   const style = document.createElement('style');
   style.textContent = `
-  #sxChat{position:fixed;bottom:28px;right:28px;z-index:9999;display:none;flex-direction:column;align-items:flex-end;gap:12px;font-family:'Inter',system-ui,sans-serif}
-  #sxChat.visible{display:flex}
+  #sxChat{display:none!important}
   /* Bubble button */
   .sxc-btn{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(124,58,237,.55);transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s ease;position:relative;flex-shrink:0}
   .sxc-btn:hover{transform:scale(1.12);box-shadow:0 12px 40px rgba(124,58,237,.7)}
