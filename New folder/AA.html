@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-black">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHROMA — Liquid Metal</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Three.js + loaders/environment as ES modules -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin:0; padding:0; background:#04050a; }
+    body { font-family:'Inter',sans-serif; overflow:hidden; }
+
+    #stage { position:fixed; inset:0; z-index:0; display:block; cursor:grab; }
+    #stage:active { cursor:grabbing; }
+
+    .ambient {
+      position:fixed; inset:0; z-index:1; pointer-events:none;
+      background:
+        radial-gradient(55% 45% at 50% 12%, rgba(99,102,241,0.16) 0%, rgba(4,5,10,0) 60%),
+        radial-gradient(45% 45% at 82% 70%, rgba(56,189,248,0.13) 0%, rgba(4,5,10,0) 55%),
+        radial-gradient(45% 45% at 16% 78%, rgba(192,132,252,0.13) 0%, rgba(4,5,10,0) 55%),
+        radial-gradient(120% 120% at 50% 50%, rgba(4,5,10,0) 42%, rgba(4,5,10,0.9) 100%);
+    }
+
+    .gradient-text {
+      background:linear-gradient(110deg,#fff 10%,#a5b4fc 35%,#c4b5fd 55%,#67e8f9 75%,#fff 95%);
+      background-size:250% auto;
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+      animation:shimmer 8s linear infinite;
+    }
+    @keyframes shimmer { to { background-position:250% center; } }
+
+    .glass { background:rgba(255,255,255,0.04); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.09); }
+
+    .glow-btn { position:relative; isolation:isolate; transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease; }
+    .glow-btn::before {
+      content:""; position:absolute; inset:-2px; border-radius:inherit; padding:1px;
+      background:linear-gradient(120deg,#818cf8,#c084fc,#38bdf8,#818cf8); background-size:300% 300%;
+      -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor; mask-composite:exclude; opacity:.6; animation:borderflow 6s linear infinite; z-index:-1; transition:opacity .35s;
+    }
+    @keyframes borderflow { to { background-position:300% 50%; } }
+    .glow-btn:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 12px 40px -8px rgba(129,140,248,.55), 0 0 60px -10px rgba(192,132,252,.45); }
+    .glow-btn:hover::before { opacity:1; }
+    .ghost-btn { transition:all .35s cubic-bezier(.2,.8,.2,1); }
+    .ghost-btn:hover { transform:translateY(-3px); border-color:rgba(165,180,252,.6); background:rgba(129,140,248,.08); box-shadow:0 0 40px -12px rgba(129,140,248,.5); }
+
+    .reveal-mask { overflow:hidden; display:inline-block; }
+    .chip-dot { box-shadow:0 0 12px 2px rgba(74,222,128,.7); }
+
+    /* loader */
+    #loader { position:fixed; inset:0; z-index:50; display:grid; place-items:center; background:#04050a; transition:opacity .8s ease; }
+    .spinner { width:46px; height:46px; border-radius:50%; border:2px solid rgba(255,255,255,.12); border-top-color:#818cf8; animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+
+<body class="text-white selection:bg-indigo-500/40">
+
+  <!-- 3D Stage -->
+  <canvas id="stage"></canvas>
+  <div class="ambient"></div>
+
+  <!-- Loader -->
+  <div id="loader"><div class="flex flex-col items-center gap-4"><div class="spinner"></div><span class="text-xs uppercase tracking-[0.3em] text-white/40">Forging metal</span></div></div>
+
+  <!-- Content -->
+  <div class="relative z-10 pointer-events-none">
+    <!-- Nav -->
+    <header class="fixed top-0 inset-x-0 z-30">
+      <nav class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between pointer-events-auto">
+        <div class="flex items-center gap-2" data-fade>
+          <div class="h-9 w-9 rounded-xl glass grid place-items-center"><i data-lucide="droplet" class="h-5 w-5 text-indigo-300"></i></div>
+          <span class="text-lg font-bold tracking-tight">CHROMA</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-sm text-white/60" data-fade>
+          <a href="#" class="hover:text-white transition-colors">Material</a>
+          <a href="#" class="hover:text-white transition-colors">Studio</a>
+          <a href="#" class="hover:text-white transition-colors">Process</a>
+        </div>
+        <button class="glow-btn glass rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2" data-fade>
+          Get access <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Hero copy -->
+    <main class="min-h-screen flex flex-col justify-center px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto">
+      <div class="max-w-xl pointer-events-auto">
+        <div class="reveal-mask mb-7">
+          <div class="glass rounded-full px-4 py-2 inline-flex items-center gap-2.5 text-xs font-medium text-white/70" data-badge>
+            <span class="h-2 w-2 rounded-full bg-green-400 chip-dot"></span>
+            Real-time liquid metal engine
+          </div>
+        </div>
+
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tight text-balance">
+          <span class="block reveal-mask"><span data-line class="gradient-text inline-block">Metal that</span></span>
+          <span class="block reveal-mask"><span data-line class="gradient-text inline-block">bends to</span></span>
+          <span class="block reveal-mask"><span data-line class="inline-block text-white/90">your touch.</span></span>
+        </h1>
+
+        <p class="mt-7 text-base sm:text-lg text-white/55 leading-relaxed text-pretty" data-fade>
+          A morphing chrome surface with true environment reflections. Hover or drag the form to ripple the liquid metal in real time.
+        </p>
+
+        <div class="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <button data-fade class="glow-btn rounded-full px-8 py-4 text-sm font-semibold bg-white text-black flex items-center gap-2">
+            <i data-lucide="sparkles" class="h-4 w-4"></i> Explore material
+          </button>
+          <button data-fade class="ghost-btn rounded-full px-8 py-4 text-sm font-semibold border border-white/15 text-white/90 flex items-center gap-2">
+            <i data-lucide="rotate-3d" class="h-4 w-4"></i> Drag to rotate
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- hint -->
+    <div class="fixed bottom-8 inset-x-0 flex justify-center text-white/40 pointer-events-none" data-fade>
+      <span class="text-[11px] uppercase tracking-[0.3em] flex items-center gap-2"><i data-lucide="mouse-pointer-2" class="h-3.5 w-3.5"></i> Move cursor to distort</span>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    lucide.createIcons();
+
+    const MODEL_URL = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripo%20Demo%20Model-BXIRO4UA8j94CKGlxyxtqtAAZUtftP.glb';
+
+    const canvas = document.getElementById('stage');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 6);
+
+    // Environment reflections (procedural studio room) -> gives the chrome something to mirror
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = envTex;
+
+    // accent lights for colored highlights
+    const l1 = new THREE.PointLight(0x818cf8, 40, 50); l1.position.set(5, 4, 5); scene.add(l1);
+    const l2 = new THREE.PointLight(0x38bdf8, 30, 50); l2.position.set(-6, -2, 3); scene.add(l2);
+    const l3 = new THREE.PointLight(0xc084fc, 30, 50); l3.position.set(0, 6, -4); scene.add(l3);
+    scene.add(new THREE.AmbientLight(0x404060, 1.2));
+
+    // Controls
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.8;
+
+    // Liquid-chrome material with noise displacement injected into a standard PBR material
+    const uniforms = {
+      uTime:     { value: 0 },
+      uDistort:  { value: 0.0 },   // animated by hover
+      uFreq:     { value: 1.6 },
+    };
+
+    function makeChrome() {
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0xdfe6f5,
+        metalness: 1.0,
+        roughness: 0.06,
+        envMapIntensity: 1.6,
+      });
+      mat.onBeforeCompile = (shader) => {
+        shader.uniforms.uTime = uniforms.uTime;
+        shader.uniforms.uDistort = uniforms.uDistort;
+        shader.uniforms.uFreq = uniforms.uFreq;
+
+        shader.vertexShader = `
+          uniform float uTime; uniform float uDistort; uniform float uFreq;
+          // ---- simplex noise (Ashima) ----
+          vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+          vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+          vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+          vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+          float snoise(vec3 v){
+            const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);
+            vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+            vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+            vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+            i=mod289(i);
+            vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+            float n_=0.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+            vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);
+            vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);
+            vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+            vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));
+            vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+            vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+            vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+            p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+            vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;
+            return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+          }
+        ` + shader.vertexShader;
+
+        // displace verts along normal using layered noise
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `
+          #include <begin_vertex>
+          float baseAmp = 0.12 + uDistort * 0.55;
+          float n  = snoise(normal * uFreq + uTime * 0.6);
+          float n2 = snoise(normal * (uFreq*2.3) - uTime * 0.9) * 0.5;
+          float disp = (n + n2) * baseAmp;
+          transformed += normal * disp;
+          `
+        );
+
+        // recompute normals roughly for nicer shading of the ripples
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <beginnormal_vertex>',
+          `
+          #include <beginnormal_vertex>
+          float e = 0.15;
+          float nx = snoise((normal + vec3(e,0.0,0.0)) * uFreq + uTime*0.6);
+          float ny = snoise((normal + vec3(0.0,e,0.0)) * uFreq + uTime*0.6);
+          float nz = snoise((normal + vec3(0.0,0.0,e)) * uFreq + uTime*0.6);
+          objectNormal = normalize(objectNormal + vec3(nx,ny,nz) * uDistort * 0.8);
+          `
+        );
+      };
+      return mat;
+    }
+
+    const chromeMat = makeChrome();
+    let modelRoot = null;
+
+    const loader = new GLTFLoader();
+    loader.load(MODEL_URL, (gltf) => {
+      const model = gltf.scene;
+
+      // center + scale to fit view
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 3.2 / maxDim;
+      model.scale.setScalar(scale);
+
+      // apply chrome to every mesh
+      model.traverse((c) => {
+        if (c.isMesh) {
+          if (c.geometry && !c.geometry.attributes.normal) c.geometry.computeVertexNormals();
+          c.material = chromeMat;
+        }
+      });
+
+      modelRoot = new THREE.Group();
+      modelRoot.add(model);
+      scene.add(modelRoot);
+
+      // entrance
+      modelRoot.scale.setScalar(0.001);
+      gsap.to(modelRoot.scale, { x:1, y:1, z:1, duration:1.6, ease:'expo.out' });
+      gsap.to(uniforms.uDistort, { value:0.18, duration:1.6, ease:'power2.out' });
+
+      // hide loader + run copy timeline
+      const ld = document.getElementById('loader');
+      gsap.to(ld, { opacity:0, duration:.6, onComplete:()=> ld.remove() });
+      runIntro();
+    }, undefined, (err) => {
+      console.log('[v0] GLB load error', err);
+      document.getElementById('loader').innerHTML =
+        '<span class="text-sm text-red-300">Failed to load model.</span>';
+    });
+
+    // Hover / pointer -> stronger ripple + light follows cursor
+    const pointer = new THREE.Vector2();
+    let hoverTarget = 0.18;
+    window.addEventListener('pointermove', (e) => {
+      pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      hoverTarget = 0.55; // ramp up distortion while moving
+      clearTimeout(window.__htimer);
+      window.__htimer = setTimeout(() => { hoverTarget = 0.18; }, 350);
+    });
+    canvas.addEventListener('pointerdown', () => { hoverTarget = 0.85; });
+    canvas.addEventListener('pointerup',   () => { hoverTarget = 0.55; });
+
+    // GSAP intro for text
+    function runIntro() {
+      gsap.set('[data-line]', { yPercent: 110 });
+      gsap.set('[data-badge]', { yPercent: 120, opacity: 0 });
+      gsap.set('[data-fade]', { y: 24, opacity: 0 });
+      const tl = gsap.timeline({ defaults:{ ease:'expo.out' } });
+      tl.to('[data-badge]', { yPercent:0, opacity:1, duration:1 }, 0)
+        .to('[data-line]', { yPercent:0, duration:1.3, stagger:.12 }, .15)
+        .to('[data-fade]', { y:0, opacity:1, duration:1, stagger:.08 }, .6);
+    }
+
+    const clock = new THREE.Clock();
+    function animate() {
+      const t = clock.getElapsedTime();
+      uniforms.uTime.value = t;
+      uniforms.uDistort.value += (hoverTarget - uniforms.uDistort.value) * 0.05;
+
+      // colored lights drift toward cursor for moving reflections
+      l1.position.x += (pointer.x * 6 - l1.position.x) * 0.04;
+      l1.position.y += (pointer.y * 4 - l1.position.y) * 0.04;
+
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
