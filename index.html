@@ -7879,6 +7879,7 @@ function navigate(slug){
       initTiltCards();
       initContainerScroll();
       initCardInteractions();
+      document.dispatchEvent(new CustomEvent('pageChanged',{detail:slug}));
     },50);
   }
 }
@@ -8083,10 +8084,17 @@ observeAnimations();
     if(e.key==='ArrowRight'){clearInterval(autoTimer);goTo(active+1);startAuto();}
   });
 
-  // init
-  updateImages();
-  updateContent();
-  startAuto();
+  // init — run now and also whenever home page becomes active
+  function initCirc(){
+    active=0;
+    updateImages();
+    updateContent();
+    startAuto();
+  }
+  initCirc();
+  document.addEventListener('pageChanged',function(e){
+    if(e.detail==='home'){ clearInterval(autoTimer); initCirc(); }
+  });
 })();
 
 // ── CONTAINER SCROLL ANIMATION ──
