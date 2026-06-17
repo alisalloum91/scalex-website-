@@ -1730,8 +1730,11 @@ window._loadSpline=function(){if(window._splineLoaded)return;window._splineLoade
   <!-- HERO -->
   <section class="hero" aria-labelledby="hero-heading">
     <div class="hero-bg"></div>
-    <div class="photo-hero-bg" aria-hidden="true">
-      <img src="HOME-HERO-IMG.webp" alt="" loading="eager">
+    <div class="hero-video-wrap" aria-hidden="true">
+      <video autoplay muted loop playsinline preload="none" poster="HOME-HERO-IMG.webp">
+        <source src="hero-video.mp4" type="video/mp4">
+      </video>
+      <div class="hvw-glow"></div>
     </div>
     <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
     <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
