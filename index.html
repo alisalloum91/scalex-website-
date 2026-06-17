@@ -644,9 +644,12 @@ footer{background:var(--dark-2);border-top:1px solid rgba(255,255,255,.07);paddi
 .card-light p{color:var(--text-2);font-size:.85rem;line-height:1.6}
 .card-light .card-link{color:var(--primary)}
 /* ── ANIMATE ON SCROLL ── */
-.anim{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}
-.anim.visible{opacity:1;transform:translateY(0)}
+.anim{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease;will-change:opacity,transform}
+.anim.visible{opacity:1;transform:translateY(0);will-change:auto}
 @media(prefers-reduced-motion:reduce){.anim{opacity:1;transform:none;transition:none}}
+/* ── SCROLL PERFORMANCE ── */
+.card,.card-light{contain:layout style}
+#navbar{contain:layout style paint}
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .hero-content{grid-template-columns:1fr;gap:40px}
