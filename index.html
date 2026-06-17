@@ -7975,6 +7975,7 @@ observeAnimations();
 
     items.forEach((el,i)=>{
       el.addEventListener('mouseenter',()=> setActive(i));
+      el.addEventListener('click',()=> setActive(i));
     });
 
     setActive(active);
