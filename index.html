@@ -1969,46 +1969,6 @@ function hxTab(n){
 }
 </script>
 
-<!-- IMPACT NUMBERS -->
-<section class="hx-impact">
-  <div class="hx-impact-inner">
-    <span class="hx-impact-eye">Proven Results</span>
-    <h2 class="hx-impact-h">Numbers That Speak For Themselves</h2>
-    <div class="hx-impact-grid">
-      <div class="hx-impact-card"><div class="hx-impact-num" data-count="312" data-suffix="%">0%</div><div class="hx-impact-label">Average Lead Growth</div><div class="hx-impact-note">Across all client campaigns</div></div>
-      <div class="hx-impact-card"><div class="hx-impact-num" data-count="60" data-suffix="+">0+</div><div class="hx-impact-label">Brands Served</div><div class="hx-impact-note">UAE, KSA &amp; GCC region</div></div>
-      <div class="hx-impact-card"><div class="hx-impact-num" data-count="4" data-suffix=".8x" data-dec="1">0x</div><div class="hx-impact-label">Average ROAS</div><div class="hx-impact-note">Return on ad spend</div></div>
-      <div class="hx-impact-card"><div class="hx-impact-num" data-count="8" data-suffix=" Yrs">0</div><div class="hx-impact-label">Industry Experience</div><div class="hx-impact-note">Serving the GCC market</div></div>
-    </div>
-  </div>
-</section>
-
-<script>
-(function(){
-  var observed=false;
-  var observer=new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting&&!observed){
-        observed=true;
-        document.querySelectorAll('.hx-impact-num[data-count]').forEach(function(el){
-          var target=parseFloat(el.getAttribute('data-count'));
-          var suffix=el.getAttribute('data-suffix')||'';
-          var dec=el.getAttribute('data-dec')?parseInt(el.getAttribute('data-dec')):0;
-          var start=performance.now(),dur=1800;
-          function step(now){
-            var t=Math.min((now-start)/dur,1),ease=t*t*(3-2*t),val=ease*target;
-            el.textContent=(dec?val.toFixed(dec):Math.floor(val))+suffix;
-            if(t<1)requestAnimationFrame(step);else el.textContent=target+suffix;
-          }
-          requestAnimationFrame(step);
-        });
-      }
-    });
-  },{threshold:0.3});
-  var sec=document.querySelector('.hx-impact');
-  if(sec)observer.observe(sec);
-})();
-</script>
 
 <section class="section rot-section" aria-labelledby="rot-heading" style="background:var(--dark-2)">
     <div class="container">
@@ -2721,6 +2681,46 @@ function hxTab(n){
       </div>
     </div>
   </section>
+
+  <!-- IMPACT NUMBERS -->
+  <section class="hx-impact">
+    <div class="hx-impact-inner">
+      <span class="hx-impact-eye">Proven Results</span>
+      <h2 class="hx-impact-h">Numbers That Speak For Themselves</h2>
+      <div class="hx-impact-grid">
+        <div class="hx-impact-card"><div class="hx-impact-num" data-count="312" data-suffix="%">0%</div><div class="hx-impact-label">Average Lead Growth</div><div class="hx-impact-note">Across all client campaigns</div></div>
+        <div class="hx-impact-card"><div class="hx-impact-num" data-count="60" data-suffix="+">0+</div><div class="hx-impact-label">Brands Served</div><div class="hx-impact-note">UAE, KSA &amp; GCC region</div></div>
+        <div class="hx-impact-card"><div class="hx-impact-num" data-count="4" data-suffix=".8x" data-dec="1">0x</div><div class="hx-impact-label">Average ROAS</div><div class="hx-impact-note">Return on ad spend</div></div>
+        <div class="hx-impact-card"><div class="hx-impact-num" data-count="8" data-suffix=" Yrs">0</div><div class="hx-impact-label">Industry Experience</div><div class="hx-impact-note">Serving the GCC market</div></div>
+      </div>
+    </div>
+  </section>
+  <script>
+  (function(){
+    var observed=false;
+    var observer=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting&&!observed){
+          observed=true;
+          document.querySelectorAll('.hx-impact-num[data-count]').forEach(function(el){
+            var target=parseFloat(el.getAttribute('data-count'));
+            var suffix=el.getAttribute('data-suffix')||'';
+            var dec=el.getAttribute('data-dec')?parseInt(el.getAttribute('data-dec')):0;
+            var start=performance.now(),dur=1800;
+            function step(now){
+              var t=Math.min((now-start)/dur,1),ease=t*t*(3-2*t),val=ease*target;
+              el.textContent=(dec?val.toFixed(dec):Math.floor(val))+suffix;
+              if(t<1)requestAnimationFrame(step);else el.textContent=target+suffix;
+            }
+            requestAnimationFrame(step);
+          });
+        }
+      });
+    },{threshold:0.3});
+    var sec=document.querySelector('.hx-impact');
+    if(sec)observer.observe(sec);
+  })();
+  </script>
 
   <!-- HOME CTA -->
   <section class="section" aria-labelledby="home-cta-heading">
