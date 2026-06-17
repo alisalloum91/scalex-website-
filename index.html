@@ -10671,7 +10671,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   /* ── CSS ── */
   const style = document.createElement('style');
   style.textContent = `
-  #sxChat{display:flex!important}
+  #sxChat{display:flex!important;position:fixed!important;bottom:24px!important;right:24px!important;z-index:9998!important;flex-direction:column!important;align-items:flex-end!important;gap:12px!important;opacity:0;transform:translateY(20px);transition:opacity .3s ease,transform .3s ease;pointer-events:none}
+  #sxChat.sxc-visible{opacity:1;transform:translateY(0);pointer-events:auto}
   /* Bubble button */
   .sxc-btn{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(124,58,237,.55);transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s ease;position:relative;flex-shrink:0}
   .sxc-btn:hover{transform:scale(1.12);box-shadow:0 12px 40px rgba(124,58,237,.7)}
@@ -10960,13 +10961,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   sendBtn.addEventListener('click', send);
   input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
 
-  /* ── Visibility: show only on home, whatsapp, contact ── */
+  /* ── Visibility: show on scroll + only on allowed pages ── */
+  let scrolled = false;
   function updateVis(){
     const active = document.querySelector('.page.active');
     const id = active ? active.id.replace('page-','') : 'home';
-    wrap.classList.toggle('visible', SHOW_ON.includes(id));
-    if(!SHOW_ON.includes(id)){ panel.classList.remove('open'); btn.classList.remove('open'); }
+    const allowed = SHOW_ON.includes(id);
+    wrap.classList.toggle('sxc-visible', allowed && scrolled);
+    if(!allowed){ panel.classList.remove('open'); btn.classList.remove('open'); }
   }
+
+  window.addEventListener('scroll', function(){
+    if(!scrolled && window.scrollY > 100){ scrolled = true; updateVis(); }
+    else if(scrolled && window.scrollY <= 100){ scrolled = false; updateVis(); }
+  }, {passive:true});
 
   const _origNav = window.navigate;
   window.navigate = function(slug){
