@@ -1991,6 +1991,33 @@ function navigate(slug){
   if(SPLIT[slug]){ window.location.href=SPLIT[slug]; return; }
   window.location.href='/#'+slug;
 }
+function toggleMobileMenu(){
+  var menu=document.getElementById('mobile-menu');
+  var btn=document.getElementById('hamburger-btn');
+  if(!menu) return;
+  var isOpen=menu.classList.toggle('open');
+  if(btn) btn.classList.toggle('open',isOpen);
+  document.body.style.overflow=isOpen?'hidden':'';
+}
+function closeMobileMenu(){
+  var menu=document.getElementById('mobile-menu');
+  var btn=document.getElementById('hamburger-btn');
+  if(!menu) return;
+  menu.classList.remove('open');
+  if(btn) btn.classList.remove('open');
+  document.body.style.overflow='';
+}
+window.addEventListener('resize',function(){ if(window.innerWidth>900) closeMobileMenu(); });
+function toggleDropdown(btn){
+  const dd=btn.closest('.nav-dropdown');
+  const open=dd.classList.toggle('open');
+  btn.setAttribute('aria-expanded',open);
+}
+document.addEventListener('click',e=>{
+  document.querySelectorAll('.nav-dropdown.open').forEach(dd=>{
+    if(!dd.contains(e.target)){dd.classList.remove('open');dd.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded','false');}
+  });
+});
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}</script>
 </body>
