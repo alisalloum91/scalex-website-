@@ -662,6 +662,12 @@ footer{background:var(--dark-2);border-top:1px solid rgba(255,255,255,.07);paddi
   .anim.visible{opacity:1!important}
   /* Remove card hover transforms on mobile */
   .card:hover,.card-light:hover{transform:none!important}
+  /* Stop ALL floating/looping animations on mobile */
+  *{animation-play-state:paused!important}
+  /* Re-enable only essential one-time animations */
+  .spinner,.hero-badge-dot,.cform-badge-dot,.sxc-online-dot,
+  .sxPing,.sxDot,.ge-conn-fill,.ge-conn-dot,
+  .anim,.anim.visible{animation-play-state:running!important}
 }
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
