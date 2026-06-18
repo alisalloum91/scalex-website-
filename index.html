@@ -7896,7 +7896,9 @@ function updateSEOMeta(slug){
   if(twDesc)  twDesc.setAttribute('content',  seo.desc);
 }
 
+const SPLIT_PAGES={'services':'/services','contact':'/contact'};
 function navigate(slug){
+  if(SPLIT_PAGES[slug]){ window.location.href=SPLIT_PAGES[slug]; return; }
   const pid=pages[slug]; if(!pid) return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const target=document.getElementById(pid);
@@ -7906,7 +7908,7 @@ function navigate(slug){
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
     window.scrollTo(0, 0);
-    try{history.pushState({page:slug},'',slug==='home'?'#home':'#'+slug);}catch(e){}
+    try{history.pushState({page:slug},'',slug==='home'?'/':'#'+slug);}catch(e){}
     updateSEOMeta(slug);
     // Reset hero video immediately — no delay
     if(slug === 'home' && window._heroVideoReset) window._heroVideoReset();
