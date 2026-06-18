@@ -11,8 +11,9 @@ export default {
     const path = url.pathname;
 
     if (PAGES.includes(path)) {
-      url.pathname = path + '.html';
-      return env.ASSETS.fetch(new Request(url.toString(), request));
+      const newUrl = new URL(request.url);
+      newUrl.pathname = path + '.html';
+      return env.ASSETS.fetch(new Request(newUrl.toString(), { method: request.method, headers: request.headers }));
     }
 
     return env.ASSETS.fetch(request);
