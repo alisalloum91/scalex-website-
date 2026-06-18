@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://www.scalex.ae/sitemap.xml
+Sitemap: https://www.scale-x-marketing.com/sitemap.xml
 
 # Google
 User-agent: Googlebot
