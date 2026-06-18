@@ -650,6 +650,19 @@ footer{background:var(--dark-2);border-top:1px solid rgba(255,255,255,.07);paddi
 /* ── SCROLL PERFORMANCE ── */
 .card,.card-light{contain:layout style}
 #navbar{contain:layout style}
+/* ── MOBILE PERFORMANCE ── */
+@media(max-width:900px){
+  /* Disable video on mobile — use poster image instead */
+  .hero-video-wrap video{display:none}
+  .hero-video-wrap{background:url('HOME-HERO-IMG.webp') center/cover no-repeat}
+  /* Remove all backdrop-filter on mobile (GPU killer) */
+  *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  /* Reduce animation complexity */
+  .anim{transition:opacity .3s ease!important;transform:none!important}
+  .anim.visible{opacity:1!important}
+  /* Remove card hover transforms on mobile */
+  .card:hover,.card-light:hover{transform:none!important}
+}
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .hero-content{grid-template-columns:1fr;gap:40px}
